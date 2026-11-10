@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Secure Checkout — METRA Fine Timepieces</title>
+<meta name="description" content="Complete your METRA order with secure checkout and insured worldwide delivery.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2308080a'/%3E%3Ccircle cx='32' cy='32' r='27' fill='none' stroke='%23c9a961'/%3E%3Cpath d='M20 44V29l12 10 12-10v15' fill='none' stroke='%23c9a961' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="checkout">
+
+<div id="site-top"></div>
+<header class="site-header" id="site-header"></header>
+
+<main>
+
+  <section class="page-banner">
+    <div class="wrap">
+      <div class="pb-inner">
+        <div class="crumb"><a href="index.html">Home</a><i>/</i><a href="cart.html">Bag</a><i>/</i><span>Checkout</span></div>
+        <span class="eyebrow">Step 02 of 03 · Secure checkout</span>
+        <h1>Almost <span class="italic">yours</span></h1>
+        <p>Complete your details below. Your order is insured in transit and arrives in our signed presentation box.</p>
+      </div>
+    </div>
+    <div class="pb-num">03</div>
+  </section>
+
+  <section class="section">
+    <div class="wrap" id="checkout-root">
+      <div class="co-layout">
+
+        <form id="checkout-form" novalidate>
+          <!-- contact -->
+          <div class="co-card reveal">
+            <div class="co-head"><span class="n">01</span><h3>Contact details</h3></div>
+            <div class="co-grid">
+              <div class="field full">
+                <label>Email address <span class="req">*</span></label>
+                <input class="input" type="email" name="email" data-required placeholder="you@example.com" autocomplete="email">
+                <span class="err">Please enter a valid email address.</span>
+              </div>
+              <div class="field full">
+                <label>Phone number <span class="req">*</span></label>
+                <input class="input" type="tel" name="phone" data-required placeholder="+92 300 0000000" autocomplete="tel">
+                <span class="err">Please enter a contact number.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- shipping -->
+          <div class="co-card reveal" data-delay="1">
+            <div class="co-head"><span class="n">02</span><h3>Delivery address</h3></div>
+            <div class="co-grid">
+              <div class="field">
+                <label>First name <span class="req">*</span></label>
+                <input class="input" name="first" data-required placeholder="Muhammad" autocomplete="given-name">
+                <span class="err">Required.</span>
+              </div>
+              <div class="field">
+                <label>Last name <span class="req">*</span></label>
+                <input class="input" name="last" data-required placeholder="Sohail" autocomplete="family-name">
+                <span class="err">Required.</span>
+              </div>
+              <div class="field full">
+                <label>Address <span class="req">*</span></label>
+                <input class="input" name="address" data-required placeholder="House / street" autocomplete="address-line1">
+                <span class="err">Required.</span>
+              </div>
+              <div class="field">
+                <label>City <span class="req">*</span></label>
+                <input class="input" name="city" data-required placeholder="Karachi" autocomplete="address-level2">
+                <span class="err">Required.</span>
+              </div>
+              <div class="field">
+                <label>Postal code <span class="req">*</span></label>
+                <input class="input" name="postal" data-required placeholder="75500" autocomplete="postal-code">
+                <span class="err">Required.</span>
+              </div>
+              <div class="field full">
+                <label>Country <span class="req">*</span></label>
+                <div class="select-wrap">
+                  <select class="select" name="country" data-required autocomplete="country-name">
+                    <option value="">Select your country</option>
+                    <option>Pakistan</option>
+                    <option>United Arab Emirates</option>
+                    <option>United Kingdom</option>
+                    <option>United States</option>
+                    <option>Switzerland</option>
+                    <option>Saudi Arabia</option>
+                    <option>Canada</option>
+                    <option>Australia</option>
+                    <option>Germany</option>
+                    <option>France</option>
+                    <option>Singapore</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <span class="err">Please select a country.</span>
+              </div>
+              <div class="field full">
+                <label>Delivery notes <span style="text-transform:none;letter-spacing:0;color:var(--muted-2)">(optional)</span></label>
+                <input class="input" name="notes" placeholder="Gift message, delivery instructions…">
+              </div>
+            </div>
+          </div>
+
+          <!-- payment -->
+          <div class="co-card reveal" data-delay="2">
+            <div class="co-head"><span class="n">03</span><h3>Payment</h3></div>
+
+            <div class="pay-opts" data-pay-opts>
+              <label class="pay-opt active" data-pay="card">
+                <span class="radio"></span>
+                <span><span class="po-name">Credit / Debit card</span><span class="po-sub">Visa, Mastercard, Amex</span></span>
+                <span class="po-ico"><span>VISA</span><span>MC</span><span>AMEX</span></span>
+              </label>
+              <label class="pay-opt" data-pay="paypal">
+                <span class="radio"></span>
+                <span><span class="po-name">PayPal</span><span class="po-sub">Pay securely with your PayPal balance</span></span>
+              </label>
+              <label class="pay-opt" data-pay="transfer">
+                <span class="radio"></span>
+                <span><span class="po-name">Bank transfer</span><span class="po-sub">Details sent after order confirmation</span></span>
+              </label>
+            </div>
+
+            <div data-card-fields style="margin-top:24px">
+              <div class="card-visual">
+                <div class="cv-top"><span>Metra · Fine timepieces</span><span>World Elite</span></div>
+                <div class="cv-chip"></div>
+                <div class="cv-num" data-card-num>•••• •••• •••• ••••</div>
+                <div class="cv-bottom"><span data-card-name>Cardholder name</span><span data-card-exp>MM / YY</span></div>
+              </div>
+              <div class="co-grid">
+                <div class="field full">
+                  <label>Card number <span class="req">*</span></label>
+                  <input class="input" name="card" inputmode="numeric" data-card placeholder="1234 5678 9012 3456" autocomplete="cc-number" maxlength="19">
+                  <span class="err">Enter a valid 16-digit card number.</span>
+                </div>
+                <div class="field full">
+                  <label>Name on card <span class="req">*</span></label>
+                  <input class="input" name="cardname" data-cardname data-required placeholder="MUHAMMAD SOHAIL METRA" autocomplete="cc-name">
+                  <span class="err">Required.</span>
+                </div>
+                <div class="field">
+                  <label>Expiry <span class="req">*</span></label>
+                  <input class="input" name="exp" data-exp placeholder="MM / YY" autocomplete="cc-exp" maxlength="7">
+                  <span class="err">Use MM / YY.</span>
+                </div>
+                <div class="field">
+                  <label>CVC <span class="req">*</span></label>
+                  <input class="input" name="cvc" data-cvc inputmode="numeric" placeholder="123" autocomplete="cc-csc" maxlength="4">
+                  <span class="err">3 or 4 digits.</span>
+                </div>
+              </div>
+            </div>
+
+            <div data-alt-pay style="display:none;padding:18px;border:1px dashed var(--line);font-size:12px;color:var(--muted);line-height:1.8;margin-top:22px"></div>
+
+            <div style="margin-top:20px">
+              <label class="check">
+                <input type="checkbox" data-terms>
+                <span>I agree to the <a href="#">Terms of Sale</a>, <a href="#">Privacy Policy</a> and confirm my billing details are correct.</span>
+              </label>
+              <span class="err" data-terms-err style="display:none;font-size:11px;color:var(--red);margin-top:8px">Please accept the terms to continue.</span>
+            </div>
+          </div>
+
+          <button class="btn btn-gold btn-block btn-lg" type="submit" style="margin-top:6px">Place order securely</button>
+          <p style="text-align:center;font-size:10px;letter-spacing:.12em;color:var(--muted-2);margin-top:14px">256-bit SSL encrypted · Your card details are never stored</p>
+        </form>
+
+        <aside class="summary reveal" data-delay="1">
+          <h3>Your order</h3>
+          <div data-co-items style="margin-bottom:16px"></div>
+          <div data-co-totals></div>
+          <div class="trust" style="margin-top:22px">
+            <div><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.4 8.2-8 9-4.6-.8-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>Secure payment</div>
+            <div><svg viewBox="0 0 24 24"><path d="M2 7h11v10H2zM13 10h5l4 3v4h-9z"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg>Insured delivery</div>
+            <div><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg>30-day returns</div>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="assets/js/store.js"></script>
+<script src="assets/js/watches.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/pages/checkout.js"></script>
+</body>
+</html>

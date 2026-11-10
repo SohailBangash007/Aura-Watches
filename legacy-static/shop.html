@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Collection — METRA Fine Timepieces</title>
+<meta name="description" content="Browse the full METRA collection of Swiss luxury watches — chronographs, divers, dress watches, skeletons and limited editions.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2308080a'/%3E%3Ccircle cx='32' cy='32' r='27' fill='none' stroke='%23c9a961'/%3E%3Cpath d='M20 44V29l12 10 12-10v15' fill='none' stroke='%23c9a961' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="shop">
+
+<div id="site-top"></div>
+<header class="site-header" id="site-header"></header>
+
+<main>
+
+  <section class="page-banner">
+    <div class="wrap">
+      <div class="pb-inner">
+        <div class="crumb"><a href="index.html">Home</a><i>/</i><span>Collection</span></div>
+        <span class="eyebrow">Twelve references · 2026</span>
+        <h1>The <span class="italic">collection</span></h1>
+        <p>Every METRA is assembled in Geneva and regulated by hand. Filter by discipline, metal or price to find the piece that belongs on your wrist.</p>
+      </div>
+    </div>
+    <div class="pb-num">01</div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="shop-layout">
+
+        <!-- filters -->
+        <aside class="filters" data-filters>
+          <div class="f-block">
+            <h4>Discipline</h4>
+            <ul class="f-list" data-cat-list></ul>
+          </div>
+          <div class="f-block">
+            <h4>Case metal</h4>
+            <div class="swatches" data-metal-list></div>
+          </div>
+          <div class="f-block">
+            <h4>Price</h4>
+            <div class="range-wrap">
+              <div class="range-val"><span>Up to</span><b data-price-out>$3,500</b></div>
+              <input type="range" min="900" max="3500" step="50" value="3500" data-price>
+            </div>
+          </div>
+          <div class="f-block">
+            <h4>Availability</h4>
+            <label class="check" style="margin-bottom:10px"><input type="checkbox" checked disabled> In stock</label>
+            <label class="check"><input type="checkbox" data-limited> Limited editions only</label>
+          </div>
+          <div class="f-block" style="border-bottom:0">
+            <button class="btn btn-sm btn-block" data-clear>Clear all filters</button>
+          </div>
+        </aside>
+
+        <!-- products -->
+        <div>
+          <div class="shop-toolbar">
+            <div class="res"><b data-count>12</b> timepieces</div>
+            <div class="tool-right">
+              <div class="shop-search">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg>
+                <input type="text" placeholder="Search the collection" data-search>
+              </div>
+              <div class="select-wrap">
+                <select class="select" data-sort aria-label="Sort products">
+                  <option value="featured">Sort: Featured</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="rating">Top Rated</option>
+                  <option value="name">Name A–Z</option>
+                </select>
+              </div>
+              <button class="btn btn-sm filters-toggle" style="display:none" data-toggle-filters>Filters</button>
+            </div>
+          </div>
+          <div class="chips" data-chips></div>
+          <div class="grid-products" id="shop-grid"></div>
+          <div style="display:flex;justify-content:center;margin-top:46px" class="reveal">
+            <button class="btn btn-ghost" data-loadmore>Load more timepieces</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="wrap">
+      <div class="stats reveal">
+        <div class="stat"><b>Free</b><span>Worldwide shipping</span></div>
+        <div class="stat"><b>5 yr</b><span>International warranty</span></div>
+        <div class="stat"><b>30 d</b><span>Complimentary returns</span></div>
+        <div class="stat"><b>Swiss</b><span>Assembled by hand</span></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="assets/js/store.js"></script>
+<script src="assets/js/watches.js"></script>
+<script src="assets/js/layout.js"></script>
+<script src="assets/js/pages/shop.js"></script>
+</body>
+</html>

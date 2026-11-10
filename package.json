@@ -1,0 +1,32 @@
+{
+  "name": "metra-fine-timepieces",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "METRA — Fine Timepieces by Muhammad Sohail Metra. React + Vite + Tailwind CSS with an Express product API.",
+  "scripts": {
+    "dev": "concurrently -k -n API,WEB -c yellow,cyan \"node server/index.js\" \"vite\"",
+    "dev:api": "node server/index.js",
+    "dev:web": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^11.1.9",
+    "express": "^4.21.2",
+    "framer-motion": "^14.11.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "serverless-http": "^4.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "vite": "^5.4.8"
+  }
+}

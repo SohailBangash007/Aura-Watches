@@ -1,0 +1,15 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.*
+!.env.example
+.DS_Store
+npm-debug.log*
+vite.config.js.timestamp-*
+data/admin-users.json
+data/admin-users.json.tmp
+
+# Local Netlify folder
+.netlify
