@@ -3,6 +3,11 @@
   publish = "dist"
   functions = "netlify/functions"
 
+# Netlify Blobs — admin accounts, sessions, resets and orders are stored here.
+# Required for sites created before Blobs was enabled by default.
+[[blobs]]
+  provider = "netlify"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/api/:splat"
