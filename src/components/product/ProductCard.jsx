@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
 import WatchImage from '../WatchImage';
 import Icon from '../ui/Icon';
 import Stars from '../ui/Stars';
-import Reveal from '../ui/Reveal';
 import { useStore } from '../../context/StoreContext';
 import { useUI } from '../../context/UIContext';
 import { useToast } from '../../context/ToastContext';
@@ -16,10 +16,49 @@ export default function ProductCard({ product, index = 0 }) {
   const caseDetail = product.specs?.Case?.split(',')[0]?.trim();
   const movementDetail = product.specs?.Movement?.split(',')[0]?.trim();
   const description = product.desc?.split(/(?<=[.!?])\s/)[0];
+  const reduce = useReducedMotion();
+
+  /* Jeweller's tilt — the card leans toward the cursor like a vitrine. */
+  const tiltX = useMotionValue(0);
+  const tiltY = useMotionValue(0);
+  const springX = useSpring(tiltX, { stiffness: 200, damping: 20 });
+  const springY = useSpring(tiltY, { stiffness: 200, damping: 20 });
+  const rotateX = useTransform(springX, [-0.5, 0.5], [4, -4]);
+  const rotateY = useTransform(springY, [-0.5, 0.5], [-4.5, 4.5]);
+
+  const onMove = (event) => {
+    if (reduce) return;
+    const el = event.currentTarget;
+    const box = el.getBoundingClientRect();
+    const x = (event.clientX - box.left) / box.width;
+    const y = (event.clientY - box.top) / box.height;
+    tiltX.set(y - 0.5);
+    tiltY.set(x - 0.5);
+    /* cursor spotlight position for the vitrine glow */
+    el.style.setProperty('--mx', `${(x * 100).toFixed(1)}%`);
+    el.style.setProperty('--my', `${(y * 100).toFixed(1)}%`);
+  };
+  const onLeave = () => {
+    tiltX.set(0);
+    tiltY.set(0);
+  };
 
   return (
-    <Reveal as="article" className="product-card" delay={(index % 4) + 1} data-id={product.id}>
+    <motion.article
+      className="product-card"
+      data-id={product.id}
+      style={reduce ? undefined : { rotateX, rotateY, transformPerspective: 950 }}
+      initial={reduce ? false : { opacity: 0, y: 34 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '0px 0px -36px 0px' }}
+      transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: (index % 4) * 0.08 }}
+      whileHover={reduce ? undefined : { y: -10, scale: 1.014 }}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+    >
       <div className="pc-media" data-metal={product.metal} data-style={product.style}>
+        <span className="pc-frame" aria-hidden="true" />
+        <span className="pc-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
         {product.badge ? (
           <span className={cn('pc-badge', product.badge === 'Sale' && 'sale')}>{product.badge}</span>
         ) : null}
@@ -84,6 +123,6 @@ export default function ProductCard({ product, index = 0 }) {
           </button>
         </div>
       </div>
-    </Reveal>
+    </motion.article>
   );
 }

@@ -20,9 +20,10 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [theme, setTheme] = useState(() => {
     try {
-      return localStorage.getItem('metra:theme') === 'dark' ? 'dark' : 'light';
+      // The dark atelier is the house presentation; the light salon stays a choice.
+      return localStorage.getItem('metra:theme:v2') === 'light' ? 'light' : 'dark';
     } catch {
-      return 'light';
+      return 'dark';
     }
   });
   const { categories } = useCatalog();
@@ -40,7 +41,7 @@ export default function Header() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     try {
-      localStorage.setItem('metra:theme', theme);
+      localStorage.setItem('metra:theme:v2', theme);
     } catch {
       // Keep the selected theme for this page even when storage is unavailable.
     }

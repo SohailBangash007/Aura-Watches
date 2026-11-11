@@ -59,6 +59,16 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(payload)
     }),
+  adminForgotPassword: (payload) =>
+    request('/admin/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
+  adminResetPassword: (payload) =>
+    request('/admin/reset-password', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }),
   adminLogout: () => request('/admin/logout', { method: 'POST' }),
   adminOverview: () => request('/admin/overview'),
   adminUsers: () => request('/admin/users'),

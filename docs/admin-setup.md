@@ -12,6 +12,18 @@ npm run dev
 
 Open `/admin/login` and sign in with those credentials. There is no public admin registration or built-in demo password. The API hashes the password and saves the admin account store in `data/admin-users.json`; that file is excluded from Git. Keep a backup of this file and restrict access to the server filesystem.
 
+**Where the password lives:** the plain-text password is never stored anywhere. `data/admin-users.json` (local) or the `aura-watches-admin` Netlify Blob (production) keeps only a random `passwordSalt` and a scrypt `passwordHash`. The initial owner password comes from `METRA_ADMIN_PASSWORD` once, at first boot, and is hashed immediately.
+
+## Reset a forgotten admin password
+
+Open `/admin/login` and choose **Forgot your password?**. The flow has three steps:
+
+1. **Request a code** — enter the admin email address. The API issues a six-digit code, hashed (SHA-256) and stored server-side for 15 minutes with at most 5 wrong attempts. Requests are rate-limited per IP.
+2. **Enter the code and a new password** — the new password must be at least 12 characters with an uppercase letter, a lowercase letter and a number. The form shows live validation and a strength meter.
+3. **Sign in** — a successful reset deletes every active session for that account, so other signed-in devices are logged out.
+
+Because this project has no email service, the code is shown on screen (`delivery: 'inline'`) in local development. On the deployed Netlify site the code is **not** shown publicly — that would let anyone take over the admin account. To recover access on the live site, temporarily set `METRA_ADMIN_RESET_INLINE=1` in the Netlify site environment variables, redeploy, complete the reset, then remove the variable again. If real email delivery is added later, send the code by email and keep inline delivery off.
+
 ## Netlify deployment
 
 In the Netlify site settings, add `METRA_ADMIN_EMAIL` and `METRA_ADMIN_PASSWORD` as private environment variables. Use a unique password of at least 12 characters; do not add credentials to the repository or `netlify.toml`. The deployed app uses Netlify Blobs for admin accounts, sessions, and orders, so these persist between function invocations. Deploy with the repository's Netlify build configuration, then open `/admin/login`.

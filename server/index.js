@@ -9,6 +9,8 @@
    POST /api/promo        { code }
    POST /api/orders       { items:[{id,qty}], promo, customer }
    POST /api/admin/login { email, password }
+   POST /api/admin/forgot-password { email } → issues a 15-minute reset code
+   POST /api/admin/reset-password  { email, code, password }
    GET  /api/admin/session | /api/admin/overview | /api/admin/users
    POST /api/admin/users { name, email, password } (owner only)
    DELETE /api/admin/users/:id (owner only)
@@ -30,12 +32,15 @@ const distDir = path.join(rootDir, 'dist');
 const PORT = Number(process.env.PORT) || 8787;
 const ADMIN_SESSION_TTL = 8 * 60 * 60 * 1000;
 const ADMIN_PASSWORD_MIN_LENGTH = 12;
+const ADMIN_RESET_TTL = 15 * 60 * 1000;
+const ADMIN_RESET_MAX_ATTEMPTS = 5;
 const adminStorePath = process.env.METRA_ADMIN_STORE
   ? path.resolve(process.env.METRA_ADMIN_STORE)
   : path.join(rootDir, 'data', 'admin-users.json');
 const netlifyRuntime = process.env.NETLIFY === 'true';
 const adminBlobStore = netlifyRuntime ? getStore('aura-watches-admin') : null;
 const sessionBlobStore = netlifyRuntime ? getStore('aura-watches-sessions') : null;
+const resetBlobStore = netlifyRuntime ? getStore('aura-watches-resets') : null;
 const orderBlobStore = netlifyRuntime ? getStore('aura-watches-orders') : null;
 
 const app = express();
@@ -102,6 +107,9 @@ const orders = new Map();
 const scryptAsync = promisify(scrypt);
 const adminSessions = new Map();
 const loginAttempts = new Map();
+const adminResetTokens = new Map();
+const resetRequests = new Map();
+const resetAttempts = new Map();
 let adminUsers = [];
 let adminMutationQueue = Promise.resolve();
 
@@ -216,6 +224,45 @@ async function deleteAdminSession(tokenHash) {
     return;
   }
   adminSessions.delete(tokenHash);
+}
+
+async function saveResetToken(email, token) {
+  if (resetBlobStore) return resetBlobStore.setJSON(email, token);
+  adminResetTokens.set(email, token);
+}
+
+async function loadResetToken(email) {
+  if (resetBlobStore) return resetBlobStore.get(email, { type: 'json' });
+  return adminResetTokens.get(email) || null;
+}
+
+async function deleteResetToken(email) {
+  if (resetBlobStore) return resetBlobStore.delete(email);
+  adminResetTokens.delete(email);
+}
+
+/* Returns a human-readable list of missing password rules, or null when strong enough. */
+function passwordRequirements(password) {
+  if (typeof password !== 'string' || !password.length) return 'a password';
+  if (password.length > 1024) return 'a password of fewer than 1024 characters';
+  const missing = [];
+  if (password.length < ADMIN_PASSWORD_MIN_LENGTH) missing.push(`at least ${ADMIN_PASSWORD_MIN_LENGTH} characters`);
+  if (!/[a-z]/.test(password)) missing.push('a lowercase letter');
+  if (!/[A-Z]/.test(password)) missing.push('an uppercase letter');
+  if (!/[0-9]/.test(password)) missing.push('a number');
+  return missing.length ? missing.join(', ') : null;
+}
+
+/* Generic per-IP rate limiter shared by the password recovery routes. */
+function checkRateLimit(store, key, max, windowMs) {
+  const now = Date.now();
+  const entry = store.get(key);
+  if (entry && entry.resetAt > now && entry.count >= max) {
+    return { limited: true, retryAfter: Math.ceil((entry.resetAt - now) / 1000) };
+  }
+  if (!entry || entry.resetAt <= now) store.set(key, { count: 1, resetAt: now + windowMs });
+  else entry.count += 1;
+  return { limited: false };
 }
 
 async function loadOrders() {
@@ -346,6 +393,152 @@ app.post('/api/admin/login', async (req, res, next) => {
     await saveAdminSession(tokenHash, { userId: user.id, expiresAt });
     setAdminCookie(req, res, token, Math.floor(ADMIN_SESSION_TTL / 1000));
     res.json({ authenticated: true, expiresAt: new Date(expiresAt).toISOString(), user: publicAdmin(user) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/* Password recovery — step 1: request a reset code for an admin email.
+   This service has no mail transport. The code is returned inline only when
+   inline delivery is explicitly allowed (local development, or deployments
+   that set METRA_ADMIN_RESET_INLINE=1 while recovering access). Returning
+   the code publicly would let anyone reset the admin password, so on a live
+   deployment keep email delivery or leave the flag off. */
+const allowInlineResetCode = process.env.METRA_ADMIN_RESET_INLINE === '1' || !netlifyRuntime;
+
+app.post('/api/admin/forgot-password', async (req, res, next) => {
+  try {
+    if (!adminUsers.length) {
+      return res.status(503).json({
+        error: 'admin_not_configured',
+        message: 'Admin access is not configured. Set METRA_ADMIN_EMAIL and METRA_ADMIN_PASSWORD, then restart the API.'
+      });
+    }
+
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    const limit = checkRateLimit(resetRequests, ip, 6, 15 * 60 * 1000);
+    if (limit.limited) {
+      return res.status(429).json({
+        error: 'too_many_attempts',
+        message: 'Too many reset requests. Please wait 15 minutes and try again.',
+        retryAfter: limit.retryAfter
+      });
+    }
+
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    if (!emailPattern.test(email)) {
+      return res.status(422).json({
+        error: 'invalid_email',
+        message: 'Enter the email address of an administrator account.'
+      });
+    }
+
+    const user = adminUsers.find((entry) => entry.email === email);
+    const code = String(100000 + Math.floor(Math.random() * 900000));
+    if (user) {
+      const codeHash = createHash('sha256').update(code).digest('hex');
+      await saveResetToken(email, { codeHash, userId: user.id, expiresAt: Date.now() + ADMIN_RESET_TTL, attempts: 0 });
+    }
+
+    /* Unknown addresses receive a decoy code so the response never reveals
+       whether an admin account exists for the address. */
+    if (allowInlineResetCode) {
+      return res.json({
+        ok: true,
+        message: 'A reset code has been issued for this address.',
+        expiresAt: new Date(Date.now() + ADMIN_RESET_TTL).toISOString(),
+        delivery: 'inline',
+        resetCode: code
+      });
+    }
+    res.json({
+      ok: true,
+      message: 'A reset code has been issued for this address.',
+      expiresAt: new Date(Date.now() + ADMIN_RESET_TTL).toISOString(),
+      delivery: 'email'
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/* Password recovery — step 2: verify the code and set a new password. */
+app.post('/api/admin/reset-password', async (req, res, next) => {
+  try {
+    if (!adminUsers.length) {
+      return res.status(503).json({
+        error: 'admin_not_configured',
+        message: 'Admin access is not configured. Set METRA_ADMIN_EMAIL and METRA_ADMIN_PASSWORD, then restart the API.'
+      });
+    }
+
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    const limit = checkRateLimit(resetAttempts, ip, 10, 15 * 60 * 1000);
+    if (limit.limited) {
+      return res.status(429).json({
+        error: 'too_many_attempts',
+        message: 'Too many reset attempts. Please wait 15 minutes and try again.',
+        retryAfter: limit.retryAfter
+      });
+    }
+
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    const code = typeof req.body?.code === 'string' ? req.body.code.trim() : '';
+    const password = typeof req.body?.password === 'string' ? req.body.password : '';
+
+    if (!emailPattern.test(email)) {
+      return res.status(422).json({ error: 'invalid_email', message: 'Enter a valid email address.' });
+    }
+    if (!/^\d{6}$/.test(code)) {
+      return res.status(422).json({ error: 'invalid_code', message: 'Enter the six-digit code from your reset request.' });
+    }
+    const missingRules = passwordRequirements(password);
+    if (missingRules) {
+      return res.status(422).json({ error: 'weak_password', message: `Choose a stronger password — it needs ${missingRules}.` });
+    }
+
+    const token = await loadResetToken(email);
+    if (!token || token.expiresAt <= Date.now()) {
+      if (token) await deleteResetToken(email);
+      return res.status(401).json({ error: 'invalid_code', message: 'That reset code is invalid or has expired. Request a new code.' });
+    }
+    if (token.attempts >= ADMIN_RESET_MAX_ATTEMPTS) {
+      await deleteResetToken(email);
+      return res.status(429).json({ error: 'too_many_attempts', message: 'Too many attempts with this code. Request a new one.' });
+    }
+
+    const suppliedHash = Buffer.from(createHash('sha256').update(code).digest('hex'), 'hex');
+    const expectedHash = Buffer.from(token.codeHash, 'hex');
+    if (!timingSafeEqual(expectedHash, suppliedHash)) {
+      token.attempts += 1;
+      await saveResetToken(email, token);
+      const remaining = ADMIN_RESET_MAX_ATTEMPTS - token.attempts;
+      return res.status(401).json({
+        error: 'invalid_code',
+        message: remaining > 0
+          ? `That reset code is incorrect. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.`
+          : 'That reset code is incorrect. Request a new code.'
+      });
+    }
+
+    const user = adminUsers.find((entry) => entry.id === token.userId && entry.email === email);
+    if (!user) {
+      await deleteResetToken(email);
+      return res.status(401).json({ error: 'invalid_code', message: 'That reset code is invalid or has expired. Request a new code.' });
+    }
+
+    const credentials = await passwordHash(password.slice(0, 1024));
+    await updateAdminUsers((users) => users.map((entry) => (
+      entry.id === user.id
+        ? { ...entry, passwordSalt: credentials.salt, passwordHash: credentials.hash }
+        : entry
+    )));
+    await deleteResetToken(email);
+    for (const [tokenHash, session] of adminSessions) {
+      if (session.userId === user.id) adminSessions.delete(tokenHash);
+    }
+
+    res.json({ ok: true, message: 'Password updated. Sign in with your new password.' });
   } catch (error) {
     next(error);
   }

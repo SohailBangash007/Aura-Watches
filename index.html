@@ -4,13 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AURA Watches — Fine Timepieces</title>
+    <script>
+      /* Paint the dark atelier before the first frame — no light flash. */
+      try {
+        document.documentElement.dataset.theme =
+          localStorage.getItem('metra:theme:v2') === 'light' ? 'light' : 'dark';
+      } catch (error) {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    </script>
     <meta
       name="description"
       content="AURA Watches — Swiss-made luxury timepieces, hand-finished and delivered worldwide. Chronographs, divers, dress watches and limited editions."
     />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230c1726'/%3E%3Ccircle cx='32' cy='32' r='27' fill='none' stroke='%23c7d0d8'/%3E%3Cpath d='M18 45 32 19l14 26M24 35h16' fill='none' stroke='%23c7d0d8' stroke-width='2'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230a0d13'/%3E%3Ccircle cx='32' cy='32' r='27' fill='none' stroke='%239cc9ec'/%3E%3Cpath d='M18 45 32 19l14 26M24 35h16' fill='none' stroke='%239cc9ec' stroke-width='2'/%3E%3C/svg%3E"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
